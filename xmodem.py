@@ -18,7 +18,7 @@ import sys
 # Tool version. Kept in sync with the u-connectXpress user guide and the
 # latest u-blox module firmware release that this tool has been validated
 # against.
-__version__ = "3.4.0"
+__version__ = "3.5.0"
 
 # `serial` (pyserial) is imported lazily inside main() so that `--version`
 # and the usage banner work without requiring pyserial to be installed.

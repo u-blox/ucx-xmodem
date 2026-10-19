@@ -15,7 +15,7 @@
 /* Tool version. Kept in sync with the u-connectXpress user guide and the
  * latest u-blox module firmware release that this tool has been validated
  * against. */
-#define UCX_XMODEM_VERSION "3.4.0"
+#define UCX_XMODEM_VERSION "3.5.0"
 
 #include <windows.h>
 #include <stdio.h>
