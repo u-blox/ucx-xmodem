@@ -9,9 +9,9 @@ truth, with identical command-line interface and runtime output:
 | **Python** | [`xmodem.py`](xmodem.py) | Quick PC-side updates, scripting, CI |
 | **C (Win32)** | [`xmodem.c`](xmodem.c) | Standalone Windows binary, embedding, no Python dependency |
 
-The current release (`VERSION` = **3.4.0**) is validated against
-**u-connectXpress 3.4.0** firmware on **NORA-W36** at **115200** and
-**1 000 000** baud.
+The current release (`VERSION` = **3.5.0**) tracks **u-connectXpress 3.5.0**.
+The update procedure (`AT+USYFWUS`, XMODEM-1K) is unchanged since 3.4.0, which
+was validated on **NORA-W36** at **115200** and **1 000 000** baud.
 
 ---
 
@@ -145,7 +145,7 @@ Options:
 ### Example output (success, normal mode)
 
 ```text
-u-blox Module Firmware Update Tool v3.4.0
+u-blox Module Firmware Update Tool v3.5.0
 ========================================
 Connecting to module...
 Opening serial port: \\.\COM22
@@ -244,10 +244,10 @@ The companion repo [u-blox/u-connectXpress](https://github.com/u-blox/u-connectX
 generator runs a sync check on every build and warns if these drift.
 
 Releases are tagged on the form `X.Y.Z` (annotated tag, no `v` prefix), e.g.
-`3.4.0`. Check it out with:
+`3.5.0`. Check it out with:
 
 ```bash
-git clone --branch 3.4.0 https://github.com/u-blox/ucx-xmodem.git
+git clone --branch 3.5.0 https://github.com/u-blox/ucx-xmodem.git
 ```
 
 ---
