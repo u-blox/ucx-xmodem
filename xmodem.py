@@ -10,10 +10,10 @@ Usage: python xmodem.py COM3 firmware.bin [115200]
        python xmodem.py --version
 """
 
-import time
-import struct
 import os
+import struct
 import sys
+import time
 
 # Tool version. Kept in sync with the u-connectXpress user guide and the
 # latest u-blox module firmware release that this tool has been validated
@@ -33,30 +33,30 @@ class XModemSender:
     NAK = 0x15  # Negative Acknowledge
     CAN = 0x18  # Cancel
     C   = 0x43  # Request CRC mode ('C')
-    
+
     def __init__(self, port, baudrate=115200, debug=False):
         self.serial = serial.Serial(port, baudrate, timeout=15)
         self.debug = debug
-    
+
     def send_file(self, filename):
         """Send file using XMODEM-1K protocol"""
         if not os.path.exists(filename):
             print(f"Error: File '{filename}' not found")
             return False
-        
+
         file_size = os.path.getsize(filename)
         block_size = 1024  # Always use XMODEM-1K for firmware
         total_blocks = (file_size + block_size - 1) // block_size
-        
+
         print(f"Sending file: {filename}")
         print(f"File size: {file_size} bytes")
         print(f"Total blocks: {total_blocks}")
         print("Protocol: XMODEM-1K with CRC-16")
-        
+
         # Wait for receiver ready signal
         if not self._wait_for_start():
             return False
-        
+
         # Send all blocks
         with open(filename, 'rb') as f:
             block_number = 1
@@ -96,7 +96,7 @@ class XModemSender:
         self.serial.reset_input_buffer()
         self.serial.reset_output_buffer()
 
-        for attempt in range(60):  # 60 second timeout
+        for _attempt in range(60):  # 60 second timeout
             char = self.serial.read(1)
             if char and self.debug:
                 print(f"[DBG] start-signal byte 0x{char.hex()}")
@@ -119,7 +119,7 @@ class XModemSender:
 
         print("Timeout waiting for start signal")
         return False
-    
+
     def _send_block(self, block_num, data):
         """Send a single XMODEM-1K block with retries"""
         block_complement = (~block_num) & 0xFF  # Bitwise complement for XMODEM protocol
@@ -178,11 +178,11 @@ class XModemSender:
             return False
         finally:
             self.serial.timeout = original_timeout
-    
+
     def _send_eot(self):
         """Send End of Transmission"""
         print("[XMODEM] Sending EOT")
-        for attempt in range(10):
+        for _attempt in range(10):
             self.serial.write(bytes([self.EOT]))
             self.serial.flush()
 
@@ -200,7 +200,7 @@ class XModemSender:
 
         print("[XMODEM] Failed to get EOT acknowledgment")
         return False
-    
+
     def _calculate_crc16(self, data):
         """Calculate CRC-16 for XMODEM (CCITT polynomial 0x1021)"""
         crc = 0x0000
@@ -221,7 +221,7 @@ def ublox_firmware_update(port, firmware_file, baudrate=115200, debug=False):
     print("=" * 40)
     if debug:
         print("[DBG] debug logging enabled")
-    
+
     try:
         # Step 1: Send AT command to enter XMODEM mode
         print("Connecting to module...")
@@ -246,36 +246,36 @@ def ublox_firmware_update(port, firmware_file, baudrate=115200, debug=False):
                 break
             time.sleep(1)
             at_serial.reset_input_buffer()
-        
+
         if not module_ready:
             print("Error: Module not responding to AT commands")
             at_serial.close()
             return False
-        
+
         print(f"Entering XMODEM mode at {baudrate} baud...")
         at_serial.write(f"AT+USYFWUS={baudrate}\r".encode())
-        
+
         response = at_serial.read(100)
         if b"OK" not in response:
             print(f"Warning: Unexpected response: {response}")
-        
+
         time.sleep(2)
-        
+
         # Step 2: Change baud rate in-place (no close/reopen to avoid DTR/RTS toggle resetting the module)
         print(f"Starting XMODEM-1K transfer at {baudrate} baud...")
         at_serial.baudrate = baudrate
         at_serial.reset_input_buffer()
-        
+
         xmodem = XModemSender.__new__(XModemSender)
         xmodem.serial = at_serial
         xmodem.debug = debug
-        
+
         if xmodem.send_file(firmware_file):
             print("\nFirmware update completed successfully!")
             # Step 3: Check new firmware version
             print("Checking firmware version...")
             time.sleep(5)
-            
+
             for attempt in range(6):
                 try:
                     check_serial = serial.Serial(port, 115200, timeout=5)
@@ -283,7 +283,7 @@ def ublox_firmware_update(port, firmware_file, baudrate=115200, debug=False):
                     time.sleep(1)
                     response = check_serial.read(200)
                     check_serial.close()
-                    
+
                     if response and b"OK" in response:
                         version_lines = response.decode('utf-8', errors='ignore').strip().split('\n')
                         for line in version_lines:
@@ -295,12 +295,12 @@ def ublox_firmware_update(port, firmware_file, baudrate=115200, debug=False):
                     print(f"Module restarting (attempt {attempt + 1}/6)...")
                     if attempt < 5:
                         time.sleep(5)
-            
+
             return True
         else:
             print("\nFirmware update failed!")
             return False
-            
+
     except Exception as e:
         print(f"Error: {e}")
         return False
